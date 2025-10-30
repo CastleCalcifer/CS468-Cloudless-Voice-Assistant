@@ -1,0 +1,10 @@
+# Copy this file to config.yaml and fill in your API keys/settings
+weather_api_key: "YOUR_WEATHER_API_KEY_HERE"
+traffic_api_key: "YOUR_TRAFFIC_API_KEY_HERE"
+location: "YOUR_CITY_OR_LOCATION"
+wakewords:
+  - "hey pi"
+  - "assistant"
+llm:
+  host: "http://localhost:11434"
+  model: "your-ollama-model-name"
