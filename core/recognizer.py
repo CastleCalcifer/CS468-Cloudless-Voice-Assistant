@@ -11,23 +11,30 @@ def is_online(host="8.8.8.8", port=53, timeout=3) -> bool:
     except Exception:
         return False
 
-def recognize_speech():
+def recognize_speech() -> str:
+    '''Recognizes speech using online Google API if online, otherwise uses offline Sphinx.'''
     recognizer = sr.Recognizer()
+    
     with sr.Microphone() as source:
         print("Say something!")
         audio = recognizer.listen(source)
+        
     if is_online():
         try:
             return recognizer.recognize_google(audio)
         except Exception as e:
             print("Google error:", e)
+    
+    # Fallback to Sphinx if offline or Google fails        
     try:
         return recognizer.recognize_sphinx(audio)
     except Exception as e:
         print("Sphinx error:", e)
+        
     return ""
 
 if __name__ == "__main__":
+    
     print("Online status:", is_online())
     text = recognize_speech()
     print("Recognized text:", text)

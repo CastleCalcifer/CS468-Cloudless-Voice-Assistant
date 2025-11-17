@@ -33,6 +33,7 @@ if __name__ == "__main__":
 
     # Set a timer for 5:00pm today
     target = datetime.now().replace(hour=17, minute=0, second=0, microsecond=0)
+    
     try:
         set_time_timer(target, alarm)
     except ValueError as e:
