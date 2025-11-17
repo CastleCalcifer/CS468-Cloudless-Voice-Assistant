@@ -1,8 +1,6 @@
 import requests
 import json
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL_NAME = "qwen2.5:1.5b-instruct"
 
 SYSTEM_PROMPT = """
 You are a concise assistant.
@@ -16,12 +14,17 @@ Your responses must ALWAYS follow these rules:
 
 Format your entire reply as a short factual explanation of the user's question. 
 Never exceed 3 sentences.
-
 """
 
-def query_agent(text):
+def query_agent(text, host="http://localhost:11434", model="qwen2.5:1.5b-instruct") -> str:
+    """
+    Pass user's command text to the LLM and return output string.
+    host: Ollama server URL (e.g., http://localhost:11434)
+    model: Model name (e.g., qwen2.5:1.5b-instruct)
+    """
+    ollama_url = host.rstrip('/') + "/api/chat"
     payload = {
-        "model": MODEL_NAME,
+        "model": model,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user",
@@ -30,7 +33,7 @@ def query_agent(text):
     }
 
     try:
-        response = requests.post(OLLAMA_URL, json=payload, stream=True, timeout=30)
+        response = requests.post(ollama_url, json=payload, stream=True, timeout=30)
         response.raise_for_status()
 
         result = ""

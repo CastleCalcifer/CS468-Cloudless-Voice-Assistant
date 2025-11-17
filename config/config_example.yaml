@@ -7,4 +7,4 @@ wakewords:
   - "assistant"
 llm:
   host: "http://localhost:11434"
-  model: "your-ollama-model-name"
+  model: "qwen2.5:1.5b-instruct"
