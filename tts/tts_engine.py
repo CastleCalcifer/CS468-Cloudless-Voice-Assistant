@@ -8,7 +8,7 @@ voice_id = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN
 # Use female voice
 engine.setProperty('voice', voice_id)
 
-def speak(text):
+def speak(text: str) -> None:
     """Converts text to speech using pyttsx3."""
     engine.say(text)
     engine.runAndWait()

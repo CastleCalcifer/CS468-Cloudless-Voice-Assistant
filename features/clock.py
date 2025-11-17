@@ -20,7 +20,7 @@ def get_date() -> str:
     year = now.year
     
     # Add ordinal suffix to day
-    def ordinal(n):
+    def ordinal(n: int) -> str:
         if 10 <= n % 100 <= 20:
             suffix = 'th'
         else:

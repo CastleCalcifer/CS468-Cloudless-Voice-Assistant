@@ -16,7 +16,7 @@ Format your entire reply as a short factual explanation of the user's question.
 Never exceed 3 sentences.
 """
 
-def query_agent(text, host="http://localhost:11434", model="qwen2.5:1.5b-instruct") -> str:
+def query_agent(text:str, host="http://localhost:11434", model="qwen2.5:1.5b-instruct") -> str:
     """
     Pass user's command text to the LLM and return output string.
     host: Ollama server URL (e.g., http://localhost:11434)

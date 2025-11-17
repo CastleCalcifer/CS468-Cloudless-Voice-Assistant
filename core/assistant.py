@@ -19,11 +19,14 @@ class Assistant:
             self.config = {}
 
     def run(self):
-        # Main event loop
+
+        # Load wake words and LLM config
         wakewords = self.config.get('wakewords', ["assistant"])
         llm_config = self.config.get('llm', {})
         llm_host = llm_config.get('host', "http://localhost:11434")
         llm_model = llm_config.get('model', "qwen2.5:1.5b-instruct")
+        
+        # Main event loop
         while True:
             if listen_for_wakeword(wakewords):
                 print("Wake word detected!")
@@ -44,4 +47,4 @@ class Assistant:
                     speak(current_date)
                 
                 else:
-                    speak(query_agent(text))
+                    speak(query_agent(text, llm_host, llm_model))
