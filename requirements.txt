@@ -1,0 +1,6 @@
+pyttsx3
+SpeechRecognition
+pocketsphinx
+PyYAML
+requests
+pyaudio
