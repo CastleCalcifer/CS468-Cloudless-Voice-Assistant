@@ -3,17 +3,18 @@ from tts.tts_engine import speak
 from core.recognizer import recognize_speech
 from features import timer, clock, weather, traffic
 from agent.ollama_agent import query_agent
-import yaml
+# import yaml
 
 class Assistant:
     def __init__(self):
         # Load configuration, initialize state
-        try:
-            with open('config/config.yaml') as f:
-                self.config = yaml.safe_load(f)
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            self.config = {}
+        # try:
+        #     with open('config/config.yaml') as f:
+        #         self.config = yaml.safe_load(f)
+        # except Exception as e:
+        #     print(f"Error loading config: {e}")
+        #     self.config = {}
+        pass
 
     def run(self):
         # Main event loop
