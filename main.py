@@ -2,18 +2,20 @@ from core.assistant import Assistant
 from core.recognizer import recognize_speech
 from tts.tts_engine import speak
 from features.clock import get_time, get_date
+from core.intent import COMMON_PHRASES, matches_any
 
 #Currently using for debugging.
 if __name__ == "__main__":
     text = recognize_speech()
     print("Recognized text:", text)
     # An ugly way to handle responses, but it's just for testing.
-    if "What's the weather".lower() in text.lower():
+    if matches_any(text, COMMON_PHRASES["weather"]):
+        current_weather = "sunny with a high of 75 degrees." # Placeholder, this will eventually be an API call
         speak("The weather is sunny with a high of 75 degrees.")
-    elif "What time is it".lower() in text.lower():
+    elif matches_any(text, COMMON_PHRASES["time"]):
         current_time = get_time()
         speak(current_time)
-    elif "What's the date".lower() in text.lower():
+    elif matches_any(text, COMMON_PHRASES["date"]):
         current_date = get_date()
         speak(current_date)
     # assistant = Assistant()
