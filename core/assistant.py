@@ -6,6 +6,7 @@ from features.clock import get_time, get_date
 from core.intent import COMMON_PHRASES, matches_any
 from features.timer import set_duration_timer, set_time_timer, alarm
 from agent.ollama_agent import query_agent
+from core.sound import play_sound, WAKE_SOUND, CONFIRM_SOUND, ERROR_SOUND
 import yaml
 
 class Assistant:
@@ -29,6 +30,7 @@ class Assistant:
         while True:
             if listen_for_wakeword(wakewords):
                 print("Wake word detected!")
+                play_sound(WAKE_SOUND)
                 text = recognize_speech()
                 print("Recognized text:", text)
                 
