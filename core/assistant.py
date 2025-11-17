@@ -19,7 +19,6 @@ class Assistant:
             self.config = {}
 
     def run(self):
-
         # Load wake words and LLM config
         wakewords = self.config.get('wakewords', ["assistant"])
         llm_config = self.config.get('llm', {})
@@ -47,4 +46,9 @@ class Assistant:
                     speak(current_date)
                 
                 else:
-                    speak(query_agent(text, llm_host, llm_model))
+                    print("Going to LLM for response...")
+                    response = query_agent(text, llm_host, llm_model)
+                    if response and not response.startswith("Error contacting Ollama"):
+                        speak(response)
+                    else:
+                        print(response)  # Or speak a fallback message

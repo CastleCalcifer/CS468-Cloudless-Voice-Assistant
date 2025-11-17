@@ -8,7 +8,7 @@ COMMON_PHRASES = {
         "what's the date", "what is the date", "tell me the date", "date today", "today's date", "can you tell me the date"
     ],
     "time": [
-        "what's the time", "what is the time", "tell me the time", "current time", "time now", "can you tell me the time"
+        "what's the time", "what is the time", "tell me the time", "current time", "time now", "can you tell me the time", "what time is it"
     ],
     "weather": [
         "what's the weather", "what is the weather", "tell me the weather", "weather today", "current weather", "can you tell me the weather"
