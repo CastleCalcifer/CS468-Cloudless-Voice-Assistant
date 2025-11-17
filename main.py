@@ -4,7 +4,7 @@ from tts.tts_engine import speak
 from features.clock import get_time, get_date
 from core.intent import COMMON_PHRASES, matches_any
 from features.timer import set_duration_timer, set_time_timer, alarm
-
+from agent.ollama_agent import query_agent
 #Currently using for debugging
 if __name__ == "__main__":
     
@@ -24,6 +24,8 @@ if __name__ == "__main__":
     elif matches_any(text, COMMON_PHRASES["date"]):
         current_date = get_date()
         speak(current_date)
-        
+    
+    else:
+        speak(query_agent(text))
     # assistant = Assistant()
     # assistant.run()  # Main event loop
