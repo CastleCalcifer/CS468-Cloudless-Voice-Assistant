@@ -13,6 +13,9 @@ COMMON_PHRASES = {
     "weather": [
         "what's the weather", "what is the weather", "tell me the weather", "weather today", "current weather", "can you tell me the weather"
     ],
+    "traffic": [
+        "what's the traffic", "what is the traffic", "tell me the traffic", "traffic conditions", "current traffic", "how's traffic", "check traffic"
+    ],
     "timer": [
         "set a timer", "start a timer", "timer for", "remind me in", "countdown for", "can you set a timer"
     ],
