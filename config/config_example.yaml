@@ -9,3 +9,14 @@ wakewords:
 llm:
   host: "http://localhost:11434"
   model: "qwen2.5:1.5b-instruct"
+
+# Audio / TTS configuration
+audio:
+  enabled: true         # Set false to disable audio (useful for headless/server runs)
+  tts_backend: "pyttsx3"  # one of: 'pyttsx3', 'neural', 'off'
+  neural_model: "tts_models/en/ljspeech/tacotron2-DDC"  # model name for Coqui TTS when using 'neural'
+  # pyttsx3 tweaks
+  tts_rate: 150        # words per minute (lower is slower)
+  tts_volume: 1.0      # 0.0 - 1.0
+  tts_voice: "gmw/en-us"      # string fragment matching voice id or name (null = auto-select)
+  tts_blocking: true   # whether speak() blocks until finished

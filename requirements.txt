@@ -5,4 +5,5 @@ PyYAML
 requests
 pyaudio
 playsound==1.2.2
+simpleaudio
 pytest
