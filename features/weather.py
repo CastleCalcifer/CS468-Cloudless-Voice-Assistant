@@ -1,5 +1,22 @@
 import requests
 
+# How `requests` is used in this module:
+# - We call `requests.get(base_url, params=params, timeout=10)` to perform an HTTP
+#   GET against WeatherAPI's current weather endpoint. The `params` dictionary
+#   includes the API `key` and the location query (`q`). The `timeout` ensures
+#   the request fails fast if the remote service does not respond.
+# - Network-level problems (connection errors, DNS failures, timeouts) raise
+#   `requests.RequestException`; we catch that and return an error dict so the
+#   rest of the assistant can handle it gracefully.
+# - After a response is received we check `resp.status_code` for 200 (OK). For
+#   non-200 responses we attempt to parse the JSON error message (if provided)
+#   and return it; otherwise we return a generic message including the status
+#   code.
+# - `resp.json()` is used to decode the response body into Python objects and
+#   we use `.get()` when accessing fields so missing keys are handled safely.
+# - Important: avoid logging or printing the API key. If you need diagnostic
+#   information, log only the URL without the `key` parameter or redact the key.
+
 
 def get_weather(location, api_key):
     """Fetch current weather for `location` from weatherapi.com.

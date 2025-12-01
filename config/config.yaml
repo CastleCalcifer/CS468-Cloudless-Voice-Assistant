@@ -1,0 +1,12 @@
+# weatherapi.com API Key
+weather_api_key: "71964edd86cf430db51201130252611"
+# TomTom API Key
+traffic_api_key: "NF8ZVithclvNXYuVXykZgPQqf9ioYokT"
+location: "Birmingham"
+wakewords:
+  - "hey pi"
+  - "assistant"
+  - "hey pie"
+llm:
+  host: "http://localhost:11434"
+  model: "qwen2.5:1.5b-instruct"

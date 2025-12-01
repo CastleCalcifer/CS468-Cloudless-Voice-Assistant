@@ -49,7 +49,7 @@ def get_traffic(location, api_key):
     # 2) Query flow segment data for traffic at that point
     try:
         flow_url = (
-            f"https://api.tomtom.com/traffic/services/5/flowSegmentData/absolute/10/json?point={lat},{lon}&unit=KMPH&key={api_key}"
+            f"https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point={lat},{lon}&unit=KMPH&key={api_key}"
         )
         fresp = requests.get(flow_url, timeout=10)
     except requests.RequestException as exc:
