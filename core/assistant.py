@@ -15,7 +15,7 @@ class Assistant:
     def __init__(self):
         # Load configuration, initialize state
         try:
-            with open('config/config_example.yaml') as f:
+            with open('config/config.yaml') as f:
                 self.config = yaml.safe_load(f)
         except Exception as e:
             print(f"Error loading config: {e}")
