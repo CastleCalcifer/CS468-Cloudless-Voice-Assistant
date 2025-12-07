@@ -1,4 +1,3 @@
-pyttsx3
 SpeechRecognition
 pocketsphinx
 PyYAML
@@ -6,3 +5,4 @@ requests
 pyaudio
 playsound==1.2.2
 pytest
+piper-tts

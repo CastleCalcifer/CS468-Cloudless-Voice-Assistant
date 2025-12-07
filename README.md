@@ -27,14 +27,17 @@ python main.py
 All required Python packages are listed in `requirements.txt`:
 
 ```
-pyttsx3
 SpeechRecognition
 pocketsphinx
 PyYAML
 requests
 pyaudio
+playsound==1.2.2
+pytest
+piper-tts
 ```
 
 ## Notes
 - For microphone support, you may need to install `pyaudio` separately depending on your OS.
 - Ollama must be running for LLM features. See your config for model and host settings.
+ - For a Linux system, it may be simpler to install `simpleaudio`. This is not recommend for Windows machines.
