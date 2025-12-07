@@ -23,10 +23,12 @@ class Assistant:
 
     def run(self):
         # Load wake words and LLM config
-        wakewords = self.config.get('wakewords', ["assistant"])
+        basic_wakewords = ["hello hi"]
+        wakewords = self.config.get('wakewords', ["assistant", "alexa"])
         llm_config = self.config.get('llm', {})
         llm_host = llm_config.get('host', "http://localhost:11434")
         llm_model = llm_config.get('model', "qwen2.5:1.5b-instruct")
+        speak("Hello.  Ready to assist.")
         
         # Main event loop
         while True:
@@ -35,6 +37,11 @@ class Assistant:
                 play_sound(WAKE_SOUND)
                 text = recognize_speech()
                 print("Recognized text:", text)
+                # If recognition returned an empty string or only whitespace,
+                # don't call the LLM — ask the user to repeat instead.
+                if not text or not str(text).strip() or COMMON_PHRASES["fillerWords"].count(text.lower()) > 0:
+                    speak("I'm sorry, I didn't catch that. Could you please repeat?")
+                    continue
                 
                 # An ugly way to handle responses, but it's just for testing.
                 if matches_any(text, COMMON_PHRASES["weather"]):
@@ -98,8 +105,13 @@ class Assistant:
                     else:
                         speak("I couldn't understand the alarm time. Please say something like 'set an alarm for 5:30 PM'.")
                 
+                elif matches_any(text, COMMON_PHRASES["exit"]):
+                    speak("Shutting down. Goodbye!")
+                    break
+                
                 else:
                     print("Going to LLM for response...")
+                    speak("Ok, I need to think to respond to this.  Now thinking...")
                     response = query_agent(text, llm_host, llm_model)
                     if response and not response.startswith("Error contacting Ollama"):
                         speak(response)
