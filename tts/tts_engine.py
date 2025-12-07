@@ -24,8 +24,8 @@ else:
         # Use absolute path relative to this file
         model_dir = os.path.dirname(__file__)
         voice = PiperVoice.load(
-            model_path="tts/en_US-amy-medium.onnx",
-            config_path="tts/en_US-amy-medium.onnx.json"
+            model_path=os.path.join(model_dir, "en_US-amy-medium.onnx"),
+            config_path=os.path.join(model_dir, "en_US-amy-medium.onnx.json")
         )
 
         def speak(text: str) -> None:
@@ -43,7 +43,14 @@ else:
             
             # Play the WAV audio if we have data
             if audio_data:
-                wave_obj = sa.WaveObject(audio_data, num_channels=1, bytes_per_sample=2, sample_rate=sample_rate)
+                # Add a small silence buffer at the start to prevent audio cutoff
+                # This gives the audio device time to initialize (150ms of silence)
+                silence_duration_ms = 150
+                silence_frames = int(sample_rate * silence_duration_ms / 1000)
+                silence_bytes = b'\x00\x00' * silence_frames  # 2 bytes per frame (16-bit audio)
+                padded_audio = silence_bytes + audio_data
+                
+                wave_obj = sa.WaveObject(padded_audio, num_channels=1, bytes_per_sample=2, sample_rate=sample_rate)
                 play_obj = wave_obj.play()
                 play_obj.wait_done()
     except Exception as e:
