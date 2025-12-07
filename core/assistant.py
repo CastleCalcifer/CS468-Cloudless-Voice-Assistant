@@ -9,13 +9,17 @@ from agent.ollama_agent import query_agent
 from core.sound import play_sound, WAKE_SOUND, CONFIRM_SOUND, ERROR_SOUND
 import yaml
 import re
+import os
 from datetime import datetime, timedelta
 
 class Assistant:
     def __init__(self):
         # Load configuration, initialize state
         try:
-            with open('config/config.yaml') as f:
+            # Use absolute path relative to this file's location
+            project_dir = os.path.dirname(os.path.dirname(__file__))
+            config_path = os.path.join(project_dir, 'config', 'config.yaml')
+            with open(config_path) as f:
                 self.config = yaml.safe_load(f)
         except Exception as e:
             print(f"Error loading config: {e}")
@@ -23,100 +27,111 @@ class Assistant:
 
     def run(self):
         # Load wake words and LLM config
-        basic_wakewords = ["hello hi"]
-        wakewords = self.config.get('wakewords', ["assistant", "alexa"])
+        wakewords_assistant = self.config.get('wakewords_assistant', ["assistant"])
+        wakewords_LLM = self.config.get('wakewords_LLM', ["alexa"])
         llm_config = self.config.get('llm', {})
         llm_host = llm_config.get('host', "http://localhost:11434")
         llm_model = llm_config.get('model', "qwen2.5:1.5b-instruct")
-        speak("Hello.  Ready to assist.")
+        
+        # Build dynamic greeting message based on configured wakewords
+        assistant_words = " or ".join(wakewords_assistant)
+        llm_words = " or ".join(wakewords_LLM)
+        greeting = f"Hello. Ready to assist. You can say {assistant_words} to issue commands or {llm_words} for AI responses."
+        speak(greeting)
         
         # Main event loop
         while True:
-            if listen_for_wakeword(wakewords):
-                print("Wake word detected!")
+            detected, wakeword_type = listen_for_wakeword(wakewords_assistant, wakewords_LLM)
+            if detected:
+                print(f"Wake word detected! Type: {wakeword_type}")
                 play_sound(WAKE_SOUND)
                 text = recognize_speech()
                 print("Recognized text:", text)
                 # If recognition returned an empty string or only whitespace,
                 # don't call the LLM — ask the user to repeat instead.
-                if not text or not str(text).strip() or COMMON_PHRASES["fillerWords"].count(text.lower()) > 0:
+                if not text or not str(text).strip() or any(filler.lower() in text.lower() for filler in COMMON_PHRASES.get("fillerWords", [])):
                     speak("I'm sorry, I didn't catch that. Could you please repeat?")
                     continue
                 
-                # An ugly way to handle responses, but it's just for testing.
-                if matches_any(text, COMMON_PHRASES["weather"]):
-                    weather_api_key = self.config.get('weather_api_key')
-                    location = self.config.get('location', 'London')
-                    result = weather.get_weather(location, weather_api_key)
-                    if "error" in result:
-                        speak(f"I couldn't get the weather: {result['error']}")
-                    else:
-                        msg = f"In {result.get('location')}, it's {result.get('condition')} and {result.get('temp_c')} degrees Celsius. Feels like {result.get('feelslike_c')} degrees."
-                        speak(msg)
-                    
-                elif matches_any(text, COMMON_PHRASES["traffic"]):
-                    traffic_api_key = self.config.get('traffic_api_key')
-                    location = self.config.get('location', 'London')
-                    result = traffic.get_traffic(location, traffic_api_key)
-                    if "error" in result:
-                        speak(f"I couldn't get traffic info: {result['error']}")
-                    else:
-                        congestion = result.get('congestion_pct')
-                        current_speed = result.get('current_speed_kph')
-                        if congestion is not None and current_speed is not None:
-                            msg = f"Traffic in {result.get('location')}: currently {current_speed} kilometers per hour, about {congestion:.0f} percent congested."
-                        else:
-                            msg = f"Traffic in {result.get('location')}: current speed {current_speed} kilometers per hour."
-                        speak(msg)
-                    
-                elif matches_any(text, COMMON_PHRASES["time"]):
-                    current_time = get_time()
-                    speak(current_time)
-                    
-                elif matches_any(text, COMMON_PHRASES["date"]):
-                    current_date = get_date()
-                    speak(current_date)
-                
-                elif matches_any(text, COMMON_PHRASES["timer"]):
-                    # Extract duration from text (e.g., "set a timer for 5 minutes")
-                    duration_seconds = self._extract_timer_duration(text)
-                    if duration_seconds:
-                        def timer_callback():
-                            speak("Timer finished!")
-                            play_sound(CONFIRM_SOUND)
-                        set_duration_timer(duration_seconds, timer_callback)
-                        minutes = duration_seconds // 60
-                        speak(f"Timer set for {minutes} minutes.")
-                    else:
-                        speak("I couldn't understand the timer duration. Please say something like 'set a timer for 5 minutes'.")
-                
-                elif matches_any(text, COMMON_PHRASES["clock"]):
-                    # Extract time from text (e.g., "set an alarm for 5:30 PM")
-                    target_time = self._extract_alarm_time(text)
-                    if target_time:
-                        def alarm_callback():
-                            speak("Alarm!")
-                            play_sound(CONFIRM_SOUND)
-                        try:
-                            set_time_timer(target_time, alarm_callback)
-                            speak(f"Alarm set for {target_time.strftime('%I:%M %p')}.")
-                        except ValueError:
-                            speak("That time is in the past. Please set an alarm for a future time.")
-                    else:
-                        speak("I couldn't understand the alarm time. Please say something like 'set an alarm for 5:30 PM'.")
-                
-                elif matches_any(text, COMMON_PHRASES["exit"]):
-                    speak("Shutting down. Goodbye!")
-                    break
-                
-                else:
+                # Route based on wakeword type
+                if wakeword_type == 'LLM':
+                    # Use LLM for open-ended queries
                     print("Going to LLM for response...")
-                    speak("Ok, I need to think to respond to this.  Now thinking...")
                     response = query_agent(text, llm_host, llm_model)
                     if response and not response.startswith("Error contacting Ollama"):
                         speak(response)
                     else:
                         print(response)  # Or speak a fallback message
+                else:
+                    # Handle assistant-specific commands
+                    if matches_any(text, COMMON_PHRASES["weather"]):
+                        weather_api_key = self.config.get('weather_api_key')
+                        location = self.config.get('location', 'London')
+                        result = weather.get_weather(location, weather_api_key)
+                        if "error" in result:
+                            speak(f"I couldn't get the weather: {result['error']}")
+                        else:
+                            msg = f"In {result.get('location')}, it's {result.get('condition')} and {result.get('temp_c')} degrees Celsius. Feels like {result.get('feelslike_c')} degrees."
+                            speak(msg)
+                        
+                    elif matches_any(text, COMMON_PHRASES["traffic"]):
+                        traffic_api_key = self.config.get('traffic_api_key')
+                        location = self.config.get('location', 'London')
+                        result = traffic.get_traffic(location, traffic_api_key)
+                        if "error" in result:
+                            speak(f"I couldn't get traffic info: {result['error']}")
+                        else:
+                            congestion = result.get('congestion_pct')
+                            current_speed = result.get('current_speed_kph')
+                            if congestion is not None and current_speed is not None:
+                                msg = f"Traffic in {result.get('location')}: currently {current_speed} kilometers per hour, about {congestion:.0f} percent congested."
+                            else:
+                                msg = f"Traffic in {result.get('location')}: current speed {current_speed} kilometers per hour."
+                            speak(msg)
+                        
+                    elif matches_any(text, COMMON_PHRASES["time"]):
+                        current_time = get_time()
+                        speak(current_time)
+                        
+                    elif matches_any(text, COMMON_PHRASES["date"]):
+                        current_date = get_date()
+                        speak(current_date)
+                    
+                    elif matches_any(text, COMMON_PHRASES["timer"]):
+                        # Extract duration from text (e.g., "set a timer for 5 minutes")
+                        duration_seconds = self._extract_timer_duration(text)
+                        if duration_seconds:
+                            def timer_callback():
+                                speak("Timer finished!")
+                                play_sound(CONFIRM_SOUND)
+                            set_duration_timer(duration_seconds, timer_callback)
+                            minutes = duration_seconds // 60
+                            speak(f"Timer set for {minutes} minutes.")
+                        else:
+                            speak("I couldn't understand the timer duration. Please say something like 'set a timer for 5 minutes'.")
+                    
+                    elif matches_any(text, COMMON_PHRASES["clock"]):
+                        # Extract time from text (e.g., "set an alarm for 5:30 PM")
+                        target_time = self._extract_alarm_time(text)
+                        if target_time:
+                            def alarm_callback():
+                                speak("Alarm!")
+                                play_sound(CONFIRM_SOUND)
+                            try:
+                                set_time_timer(target_time, alarm_callback)
+                                speak(f"Alarm set for {target_time.strftime('%I:%M %p')}.")
+                            except ValueError:
+                                speak("That time is in the past. Please set an alarm for a future time.")
+                        else:
+                            speak("I couldn't understand the alarm time. Please say something like 'set an alarm for 5:30 PM'.")
+                    
+                    elif matches_any(text, COMMON_PHRASES["exit"]):
+                        speak("Shutting down. Goodbye!")
+                        break
+                    
+                    else:
+                        # Unrecognized command
+                        speak("I didn't recognize that. You can say Alexa to get an AI response.")
     
     def _extract_timer_duration(self, text: str) -> int:
         """Extract timer duration in seconds from user input.
