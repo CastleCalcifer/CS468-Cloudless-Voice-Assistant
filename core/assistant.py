@@ -23,18 +23,32 @@ class Assistant:
 
     def run(self):
         # Load wake words and LLM config
-        wakewords = self.config.get('wakewords', ["assistant"])
+        wakewords_assistant = self.config.get('wakewords_assistant', ["assistant"])
+        wakewords_LLM = self.config.get('wakewords_LLM', ["computer"])
         llm_config = self.config.get('llm', {})
         llm_host = llm_config.get('host', "http://localhost:11434")
         llm_model = llm_config.get('model', "qwen2.5:1.5b-instruct")
         
         # Main event loop
         while True:
-            if listen_for_wakeword(wakewords):
-                print("Wake word detected!")
+            detected, wakeword_type = listen_for_wakeword(wakewords_assistant, wakewords_LLM)
+            if detected:
+                print(f"Wake word detected! Type: {wakeword_type}")
                 play_sound(WAKE_SOUND)
                 text = recognize_speech()
                 print("Recognized text:", text)
+
+                 # Route based on wakeword type
+                if wakeword_type == 'LLM':
+                    # Use LLM for open-ended queries
+                    print("Going to LLM for response...")
+                    response = query_agent(text, llm_host, llm_model)
+                    if response and not response.startswith("Error contacting Ollama"):
+                        speak(response)
+                        continue
+                    else:
+                        print(response)  # Or speak a fallback message
+                        continue
                 
                 # An ugly way to handle responses, but it's just for testing.
                 if matches_any(text, COMMON_PHRASES["weather"]):
@@ -99,12 +113,9 @@ class Assistant:
                         speak("I couldn't understand the alarm time. Please say something like 'set an alarm for 5:30 PM'.")
                 
                 else:
-                    print("Going to LLM for response...")
-                    response = query_agent(text, llm_host, llm_model)
-                    if response and not response.startswith("Error contacting Ollama"):
-                        speak(response)
-                    else:
-                        print(response)  # Or speak a fallback message
+                    # Unrecognized command, suggest LLM usage
+                    llm_words = ", ".join(wakewords_LLM)
+                    speak(f"I didn't recognize that. You can say {llm_words} to get an AI response.")
     
     def _extract_timer_duration(self, text: str) -> int:
         """Extract timer duration in seconds from user input.

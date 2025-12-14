@@ -2,10 +2,12 @@
 weather_api_key: "YOUR_WEATHER_API_KEY_HERE"
 traffic_api_key: "YOUR_TRAFFIC_API_KEY_HERE"
 location: "YOUR_CITY_OR_LOCATION"
-wakewords:
+wakewords_assistant::
   - "hey pi"
   - "assistant"
   - "hey pie"
+wakewords_LLM:
+  - "computer"
 llm:
   host: "http://localhost:11434"
   model: "qwen2.5:1.5b-instruct"
