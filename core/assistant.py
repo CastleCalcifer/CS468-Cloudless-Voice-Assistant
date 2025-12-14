@@ -28,6 +28,12 @@ class Assistant:
         llm_config = self.config.get('llm', {})
         llm_host = llm_config.get('host', "http://localhost:11434")
         llm_model = llm_config.get('model', "qwen2.5:1.5b-instruct")
+
+        # Build dynamic greeting message based on configured wakewords
+        assistant_words = " or ".join(wakewords_assistant)
+        llm_words = " or ".join(wakewords_LLM)
+        greeting = f"Hello. Ready to assist. You can say {assistant_words} to issue commands or {llm_words} for AI responses."
+        speak(greeting)
         
         # Main event loop
         while True:
@@ -37,6 +43,12 @@ class Assistant:
                 play_sound(WAKE_SOUND)
                 text = recognize_speech()
                 print("Recognized text:", text)
+
+                # If recognition returned an empty string or only whitespace,
+                # don't call the LLM — ask the user to repeat instead.
+                if not text or not str(text).strip() or any(filler.lower() in text.lower() for filler in COMMON_PHRASES.get("fillerWords", [])):
+                    speak("I'm sorry, I didn't catch that. Could you please repeat?")
+                    continue
 
                  # Route based on wakeword type
                 if wakeword_type == 'LLM':
@@ -112,9 +124,12 @@ class Assistant:
                     else:
                         speak("I couldn't understand the alarm time. Please say something like 'set an alarm for 5:30 PM'.")
                 
+                elif matches_any(text, COMMON_PHRASES["exit"]):
+                        speak("Shutting down. Goodbye!")
+                        break
+                
                 else:
                     # Unrecognized command, suggest LLM usage
-                    llm_words = ", ".join(wakewords_LLM)
                     speak(f"I didn't recognize that. You can say {llm_words} to get an AI response.")
     
     def _extract_timer_duration(self, text: str) -> int:

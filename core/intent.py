@@ -23,6 +23,12 @@ COMMON_PHRASES = {
         "set an alarm", "wake me up at", "alarm for", "alarm at", "can you set an alarm"
     ],
     # Add more intents and phrases as needed
+    "fillerWords": [
+        "oh", "uh", "huh", "mm", "mmm"
+    ],
+    "exit": [
+        "exit assistant", "quit assistant", "goodbye", "shut down", "turn off", "stop listening"
+    ]
 }
 
 def matches_any(text:str, phrases:list) -> bool:
