@@ -31,6 +31,8 @@ def listen_for_wakeword(wakewords_assistant: list[str], wakewords_LLM: list[str]
                     elif any(word in text.lower() for word in wakewords_LLM):
                         print(f"Wake word detected (LLM): {text}")
                         return True, 'LLM'
+                    else:
+                        print(f"Heard: \"{text}\" (no wake word detected)")
                 except sr.UnknownValueError:
                     pass
             else:
@@ -45,6 +47,7 @@ def listen_for_wakeword(wakewords_assistant: list[str], wakewords_LLM: list[str]
                     elif any(word in text.lower() for word in wakewords_LLM):
                         print(f"Wake word detected (LLM): {text}")
                         return True, 'LLM'
-                
+                    else:
+                        print(f"Heard: \"{text}\" (no wake word detected)")
                 except sr.UnknownValueError:
                     continue
