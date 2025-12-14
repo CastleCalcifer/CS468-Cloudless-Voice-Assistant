@@ -2,6 +2,7 @@ SpeechRecognition
 pocketsphinx
 PyYAML
 requests
+simpleaudio
 pyaudio
 playsound==1.2.2
 pytest

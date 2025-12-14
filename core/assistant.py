@@ -28,7 +28,7 @@ class Assistant:
     def run(self):
         # Load wake words and LLM config
         wakewords_assistant = self.config.get('wakewords_assistant', ["assistant"])
-        wakewords_LLM = self.config.get('wakewords_LLM', ["alexa"])
+        wakewords_LLM = self.config.get('wakewords_LLM', ["computer"])
         llm_config = self.config.get('llm', {})
         llm_host = llm_config.get('host', "http://localhost:11434")
         llm_model = llm_config.get('model', "qwen2.5:1.5b-instruct")
@@ -131,7 +131,7 @@ class Assistant:
                     
                     else:
                         # Unrecognized command
-                        speak("I didn't recognize that. You can say Alexa to get an AI response.")
+                        speak(f"I didn't recognize that. You can say {llm_words} to get an AI response.")
     
     def _extract_timer_duration(self, text: str) -> int:
         """Extract timer duration in seconds from user input.

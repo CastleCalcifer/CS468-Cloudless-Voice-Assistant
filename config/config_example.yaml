@@ -5,7 +5,7 @@ location: "YOUR_CITY_OR_LOCATION"
 wakewords_assistant:
   - "assistant"
 wakewords_LLM:
-  - "alexa"
+  - "computer"
 llm:
   host: "http://localhost:11434"
   model: "qwen2.5:1.5b-instruct"
